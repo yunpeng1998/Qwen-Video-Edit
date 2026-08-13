@@ -1,0 +1,27 @@
+# DiffSynth-Studio and the Wan2.2 enhancement code are VENDORED in this repo
+# (./diffsynth, ./wan) -- do not pip-install either; run scripts from the
+# repo root so the vendored packages are picked up.
+torch>=2.4
+torchvision
+transformers
+accelerate
+deepspeed          # full-parameter training / --zero_stage 3
+peft               # LoRA injection
+safetensors
+einops
+imageio
+imageio[ffmpeg]
+av                 # pyav plugin for video decode
+numpy
+Pillow
+modelscope         # base-weight auto-download (diffsynth loader)
+tqdm
+pandas
+# vendored `wan` (Wan2.2 enhancement) deps:
+diffusers
+easydict
+ftfy
+regex
+sentencepiece
+# flash-attn is OPTIONAL: the vendored wan/modules/attention.py includes an
+# SDPA fallback; install flash-attn for faster enhancement if you can.

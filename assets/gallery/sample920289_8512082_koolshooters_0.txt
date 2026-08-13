@@ -1,0 +1,1 @@
+Introduce a faint glowing halo around the subject’s head, emitting a soft white light.
