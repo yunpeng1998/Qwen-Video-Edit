@@ -218,7 +218,7 @@ Input (`input_grid.png`) and result (`edited_grid.png`), zero training:
 ## License / acknowledgements
 
 Built on [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio),
-[Qwen-Image-Edit](https://huggingface.co/Qwen/Qwen-Image-Edit-2511),
+[Qwen-Image-Edit](https://huggingface.co/Qwen/Qwen-Image-Edit),
 [Wan 2.1/2.2](https://github.com/Wan-Video) and
 [Ditto](https://github.com/EzioBy/Ditto). Vendored code retains its upstream
 licenses -- see `licenses/LICENSE.diffsynth-studio` and

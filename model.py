@@ -112,7 +112,7 @@ def model_fn_video_tokens(
 class VideoTokenEditModule(DiffusionTrainingModule):
     def __init__(
         self,
-        model_id_with_origin_paths="Qwen/Qwen-Image-Edit-2511:transformer/diffusion_pytorch_model*.safetensors,"
+        model_id_with_origin_paths="Qwen/Qwen-Image-Edit:transformer/diffusion_pytorch_model*.safetensors,"
                                    "Qwen/Qwen-Image:text_encoder/model*.safetensors",
         wan_vae_model_id_with_origin_path="Wan-AI/Wan2.1-T2V-1.3B:Wan2.1_VAE.pth",
         trainable_models=None,
