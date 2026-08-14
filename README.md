@@ -4,7 +4,7 @@
 
 ### 🔗 Links & Resources
 
-[[📄 Paper](#)] [[🌐 Project Page](https://yunpeng1998.github.io/qwen-video-edit/)] [[📦 Model Weights](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)]
+[[📄 Paper](#)] [[🌐 Project Page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page)] [[📦 Model Weights](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)]
 <!-- TODO: replace the Paper link with the arXiv URL once available -->
 
 ---
@@ -12,8 +12,7 @@
 ![Long-video editing demo: source (left) vs. edited (right)](assets/readme_demo.gif)
 
 *A long video edited chunk by chunk with different instructions — source on the
-left, our result on the right. Full-quality videos ([source](assets/example2.mp4),
-[edited](assets/hero2_after.mp4)) play on the
+left, our result on the right. Full-quality videos play on the
 [project page](https://yunpeng1998.github.io/qwen-video-edit/).*
 
 Instruction-based **video editing by repurposing an image editing model**:
