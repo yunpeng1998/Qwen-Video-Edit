@@ -45,9 +45,6 @@ Key ideas:
   image model's prior; `--pe_mode video` alternatively gives each frame an
   explicit temporal index. Implemented as a runtime patch of DiffSynth's
   `QwenEmbedRope` (`rope_patch.py`) — no vendored model code.
-- Two latent modes: `wan_compressed` (default; Wan's temporal-4x latents) and
-  `qwen_framewise_pack4` (per-frame Qwen image latents, 4 frames packed along
-  the feature dim; same token count, motion becomes slot differences).
 
 ## Repository layout
 
@@ -64,10 +61,6 @@ Key ideas:
 | `rope_patch.py` | guard that verifies the vendored patched diffsynth is the one imported |
 | `licenses/` | upstream licenses for the vendored code |
 
-DiffSynth-Studio and the enhancement code are vendored on purpose: both are
-fast-moving repos, and this project depends on their exact internals. Do NOT
-pip-install either -- run all scripts from the repo root so the vendored
-packages shadow any installed copies.
 
 ## Setup
 
@@ -107,8 +100,7 @@ fails loudly if they don't).
 ### Download checkpoints
 
 **Our fine-tuned editing checkpoint** (360p; trained with `--num_frames 45
---video_max_pixels 245760 --latent_mode wan_compressed --pe_mode grid
---zero_cond_t` — inference flags must match):
+--video_max_pixels 245760 --latent_mode wan_compressed --pe_mode grid` — inference flags must match):
 
 ```bash
 hf download yunpeng1998/Qwen-Video-Edit 360P/step-30000.safetensors \
@@ -165,7 +157,7 @@ python infer.py \
   --output_dir ./out
 ```
 
-`--latent_mode / --pe_mode / --num_frames / --zero_cond_t` **must match the
+`--latent_mode / --pe_mode / --num_frames` **must match the
 checkpoint's training configuration**. Outputs `*_chunk000.mp4` (+ same-name
 `.txt` with the prompt) in temporal order; the script prints the ffmpeg
 concat command. `--skip_enhance` writes the raw edited chunks (debugging
@@ -206,13 +198,12 @@ The observations this project is built on, runnable with stock checkpoints:
 ```bash
 # 1. An image edit model can edit "video as a contact sheet":
 python empirical.py --mode image_grid --frames_dir ./snowboard --uniform_sample \
-  --prompt "Replace the skiers on the image with a robot, ensuring the pose matches the original person, and maintaining consistency of the robot across frames."
+  --prompt "Replace the skier on the image with a robot, ensuring the pose matches the original person, and maintaining consistency of the robot across frames."
 
 # 2. The same works when each frame is VAE-encoded SEPARATELY and the DiT
 #    sees concatenated per-frame tokens with grid positional encodings
-#    (identity projections = exact img_in/proj_out warm start):
 python empirical.py --mode latent_grid --frames_dir ./snowboard --uniform_sample \
-  --prompt "Replace the skiers on the image with a robot, ensuring the pose matches the original person, and maintaining consistency of the robot across frames."
+  --prompt "Replace the skier on the image with a robot, ensuring the pose matches the original person, and maintaining consistency of the robot across frames."
 ```
 
 Input (`input_grid.png`) and result (`edited_grid.png`), zero training:
