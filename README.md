@@ -1,10 +1,10 @@
 # Qwen-Video-Edit: Instruction-Based Video Editing by Repurposing an Image Editing Model
 
-**Yunpeng Bai, Yossi Gandelsman, Michaël Gharbi, Qixing Huang**
+**[Yunpeng Bai](https://yunpeng1998.github.io/), Yossi Gandelsman, Michaël Gharbi, Qixing Huang**
 
 ### 🔗 Links & Resources
 
-[[📄 Paper](#)] [[🌐 Project Page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page)] [[📦 Model Weights](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)]
+[[📄 Paper](https://arxiv.org/abs/2608.14790)] [[🌐 Project Page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page)] [[📦 Model Weights](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)]
 <!-- TODO: replace the Paper link with the arXiv URL once available -->
 
 ---
@@ -13,7 +13,7 @@
 
 *A long video edited chunk by chunk with different instructions — source on the
 left, our result on the right. Full-quality videos play on the
-[project page](https://yunpeng1998.github.io/qwen-video-edit/).*
+[project page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page/).*
 
 Instruction-based **video editing by repurposing an image editing model**:
 Qwen-Image-Edit's DiT directly edits Wan 2.1 video-VAE latents, bridged by
@@ -26,7 +26,7 @@ source video ──(frozen Wan2.1 VAE)──> video latents (16ch, temporal 4x)
       │                              trainable in-projection
       │                                       ▼
 prompt + frame-grid preview ──> Qwen-Image-Edit DiT (LoRA or full FT)
-   (Qwen2.5-VL branch)                        │  grid/video RoPE over latent frames
+   (Qwen2.5-VL branch)                        │  grid RoPE over latent frames
                                      trainable out-projection
                                               ▼
                        edited latents ──(frozen Wan2.1 VAE)──> edited video
@@ -42,8 +42,7 @@ Key ideas:
   distribution shift.
 - **Grid positional encoding**: the T latent frames are laid out as tiles of
   one virtual big image (each frame keeps a spatial offset), matching the
-  image model's prior; `--pe_mode video` alternatively gives each frame an
-  explicit temporal index. Implemented as a runtime patch of DiffSynth's
+  image model's prior. Implemented as a runtime patch of DiffSynth's
   `QwenEmbedRope` (`rope_patch.py`) — no vendored model code.
 
 ## Repository layout
@@ -56,7 +55,7 @@ Key ideas:
 | `train.py` | single-node multi-GPU training (torchrun) |
 | `infer.py` | long-video editing + Wan2.2 enhancement pipeline |
 | `empirical.py` | zero-training demos: image-grid & latent-grid editing |
-| `diffsynth/` | **vendored** [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) (pinned snapshot; `models/qwen_image_dit.py` carries our grid/video RoPE patch) |
+| `diffsynth/` | **vendored** [DiffSynth-Studio](https://github.com/modelscope/DiffSynth-Studio) (pinned snapshot; `models/qwen_image_dit.py` carries our grid RoPE patch) |
 | `wan/` | **vendored** Wan2.2 enhancement code from [Ditto](https://github.com/EzioBy/Ditto) (with an SDPA fallback so flash-attn is optional) |
 | `rope_patch.py` | guard that verifies the vendored patched diffsynth is the one imported |
 | `licenses/` | upstream licenses for the vendored code |
