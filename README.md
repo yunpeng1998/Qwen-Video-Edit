@@ -1,4 +1,4 @@
-# Qwen-Video-Edit: Instruction-Based Video Editing by Repurposing an Image Editing Model
+# Instruction-Based Video Editing by Repurposing an Image Editing Model
 
 **[Yunpeng Bai](https://yunpeng1998.github.io/), Yossi Gandelsman, Michaël Gharbi, Qixing Huang**
 
@@ -14,6 +14,15 @@
 *A long video edited chunk by chunk with different instructions — source on the
 left, our result on the right. Full-quality videos play on the
 [project page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page/).*
+
+## 🔥 Updates
+
+- **2026-08-20**: New checkpoints in the [model zoo](#model-zoo): **480P**
+  (per-subset variants + an **81-frame** model) and **720P**. Added
+  **ComfyUI support** — this repo now doubles as a
+  [custom-node pack](#comfyui).
+- **2026-08-14**: Initial release: code, the 360P checkpoint, report, and
+  project page.
 
 Instruction-based **video editing by repurposing an image editing model**:
 Qwen-Image-Edit's DiT directly edits Wan 2.1 video-VAE latents, bridged by
@@ -96,15 +105,42 @@ Note: run all commands from the repo root -- the vendored `diffsynth/` and
 `wan/` packages must shadow any pip-installed copies (the second check above
 fails loudly if they don't).
 
-### Download checkpoints
+### Model zoo
 
-**Our fine-tuned editing checkpoint** (360p; trained with `--num_frames 45
---video_max_pixels 245760 --latent_mode wan_compressed --pe_mode grid` — inference flags must match):
+All fine-tuned checkpoints live in
+[yunpeng1998/Qwen-Video-Edit](https://huggingface.co/yunpeng1998/Qwen-Video-Edit),
+organized by resolution. Directory names encode the [Ditto-1M](https://github.com/EzioBy/Ditto)
+training subset and the supported frame count: e.g. `global_local_81` = trained
+on the *global + local* editing subsets, supports **81**-frame chunks
+(`_45` → 45 frames). At inference, `--num_frames` and `--video_max_pixels`
+**must match the table** (all checkpoints use
+`--latent_mode wan_compressed --pe_mode grid`):
+
+| checkpoint | training data (Ditto-1M) | `--num_frames` | `--video_max_pixels` |
+|---|---|---|---|
+| [`360P/step-30000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) | global + local | 45 | 245760 |
+| [`480P/global_45/step-6000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_45) | global | 45 | 399360 |
+| [`480P/local_45/step-11000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/local_45) | local | 45 | 399360 |
+| [`480P/sim2real_45/step-7000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/sim2real_45) | sim2real | 45 | 399360 |
+| [`480P/global_local_81/step-6500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) | global + local | 81 | 399360 |
+| [`720P/global_local_45/step-3500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/720P/global_local_45) | global + local | 45 | 921600 |
+
+> **Note on 720P**: trained for only 3,500 steps so far (720P training is
+> slow — ~4x the tokens per sample of 480P). It is the least-trained
+> checkpoint in the zoo; if results look off, fall back to a 480P/360P
+> model, which also runs much faster at inference.
+
+Download any of them the same way (each file is ~40GB):
 
 ```bash
+# the default 360P checkpoint used in the examples below:
 hf download yunpeng1998/Qwen-Video-Edit 360P/step-30000.safetensors \
   --local-dir ./checkpoints
 # -> ./checkpoints/360P/step-30000.safetensors
+
+# e.g. the 81-frame 480P checkpoint:
+hf download yunpeng1998/Qwen-Video-Edit 480P/global_local_81/step-6500.safetensors \
+  --local-dir ./checkpoints
 ```
 
 **Base weights.** Easiest: do nothing — DiffSynth's loader auto-downloads
@@ -162,6 +198,90 @@ checkpoint's training configuration**. Outputs `*_chunk000.mp4` (+ same-name
 concat command. `--skip_enhance` writes the raw edited chunks (debugging
 only). flash-attn speeds up the enhancement stage but is optional (the
 vendored attention has an SDPA fallback).
+
+## ComfyUI
+
+This repo doubles as a ComfyUI custom-node pack (single-chunk semantics:
+one sampler call edits one `num_frames` window).
+
+![ComfyUI workflow demo](assets/comfyui_demo.gif)
+
+### Install
+
+```bash
+# 1. ComfyUI itself (skip if you already have it)
+git clone https://github.com/comfyanonymous/ComfyUI
+cd ComfyUI && pip install -r requirements.txt
+# NOTE: make sure this doesn't replace your torch/torchvision/torchaudio with
+# builds for a different CUDA version -- if imports break afterwards,
+# reinstall the matching wheels from https://download.pytorch.org/whl/<your-cuda>
+
+# 2. Node packs
+cd custom_nodes
+git clone https://github.com/yunpeng1998/Qwen-Video-Edit
+cd Qwen-Video-Edit && pip install -r requirements.txt && cd ..   # our deps
+# video I/O nodes (LoadVideo / VideoCombine):
+git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite
+cd ComfyUI-VideoHelperSuite && pip install -r requirements.txt && cd ..
+```
+
+### Prepare models & inputs
+
+```bash
+# where the Qwen/Wan base weights get auto-downloaded on first run
+# (~55GB -- point it at a big disk; reuse your existing cache if you have one)
+export DIFFSYNTH_MODEL_BASE_PATH=/path/to/model_cache
+
+# a fine-tuned checkpoint from the model zoo (see table above)
+hf download yunpeng1998/Qwen-Video-Edit 360P/step-30000.safetensors \
+  --local-dir /path/to/checkpoints
+
+# Wan2.2 for the enhancement stage
+hf download Wan-AI/Wan2.2-T2V-A14B --local-dir /path/to/Wan2.2-T2V-A14B
+
+# put a test video where the LoadVideo node can see it
+cp your_video.mp4 ComfyUI/input/
+```
+
+### Run
+
+```bash
+cd ComfyUI    # (the directory containing main.py)
+python main.py --listen 0.0.0.0 --port 8188
+```
+
+Open `http://localhost:8188`. On a local machine that's it; on a remote
+server, tunnel the port first: `ssh -L 8188:localhost:8188 user@server`,
+then open `localhost:8188` locally.
+
+Load the example workflow: sidebar **Workflows** tab after
+`cp custom_nodes/Qwen-Video-Edit/comfyui_workflows/qwen_video_edit_chunk.json user/default/workflows/`,
+or just drag the JSON onto the canvas. Set the Loader's `checkpoint` and the
+Enhance node's `wan22_ckpt_dir` to your paths, pick your video in LoadVideo
+(set `frame_load_cap` = the sampler's `num_frames`), write a prompt (same
+text in Sampler and Enhance), and Queue. The first run downloads/loads
+~55GB of base weights -- watch the terminal for progress.
+
+Three nodes under the **QwenVideoEdit** category:
+
+| node | role | key widgets |
+|---|---|---|
+| `Qwen-Video-Edit Loader` | loads DiT + text encoder + VAE + your checkpoint | `checkpoint`, `latent_mode` / `pe_mode` / `zero_cond_t` (**must match the checkpoint**) |
+| `Qwen-Video-Edit Sampler (one chunk)` | edits one chunk of frames | `prompt`, `num_frames`, `max_pixels`, `steps`, `cfg_scale`, `seed` |
+| `Wan2.2 Enhance (Ditto)` | mandatory denoising enhancement | `wan22_ckpt_dir`, `enhance_steps`, `offload` |
+
+Switching between checkpoints trained at different resolutions = duplicate
+the Loader with a different `checkpoint`, and set the Sampler's
+`max_pixels` / `num_frames` per the [model zoo](#model-zoo) table.
+For long videos, chunk with VHS LoadVideo's `frame_load_cap` /
+`skip_first_frames` and run per chunk.
+
+**Memory.** The editing stack (~55GB) and the Wan2.2 expert (~28GB) cannot
+share an 80GB GPU, so the sampler and the enhance node automatically swap
+them: by default the idle stack is parked in CPU RAM (fast, needs ~100GB
+host RAM). On smaller hosts set `low_ram=True` on the enhance node -- the
+editing stack is then fully freed before enhancing and reloaded from disk
+(~minutes) on the next sampler run.
 
 ## Training
 
