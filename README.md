@@ -118,13 +118,20 @@ on the *global + local* editing subsets, supports **81**-frame chunks
 
 | checkpoint | training data (Ditto-1M) | `--num_frames` | `--video_max_pixels` |
 |---|---|---|---|
-| [`360P/step-30000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) | global + local | 45 | 245760 |
+| **[`360P/step-30000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) ⭐ (Recommended)** | global + local | **45** | **245760** |
 | [`480P/global_45/step-6000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_45) | global | 45 | 399360 |
 | [`480P/local_45/step-11000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/local_45) | local | 45 | 399360 |
 | [`480P/sim2real_45/step-7000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/sim2real_45) | sim2real | 45 | 399360 |
-| [`480P/global_local_81/step-6500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) | global + local | 81 | 399360 |
+| **[`480P/global_local_81/step-6500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) ⭐ (Recommended)** | global + local | **81** | **399360** |
 | [`720P/global_local_45/step-3500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/720P/global_local_45) | global + local | 45 | 921600 |
 
+> **Which one to use?** Start with the two ⭐ recommended checkpoints: they
+> are trained on the full *global + local* data and are the most converged.
+> **`360P/step-30000`** gives the best quality-per-compute and is the safest
+> default; **`480P/global_local_81`** is the pick for higher resolution or
+> longer (81-frame) chunks. The per-subset 480P variants (`global_45` /
+> `local_45` / `sim2real_45`) specialize in one edit family each.
+>
 > **Note on 720P**: trained for only 3,500 steps so far (720P training is
 > slow — ~4x the tokens per sample of 480P). It is the least-trained
 > checkpoint in the zoo; if results look off, fall back to a 480P/360P
