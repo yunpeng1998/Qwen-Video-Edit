@@ -4,7 +4,7 @@
 
 ### 🔗 Links & Resources
 
-[[📄 Paper](https://arxiv.org/abs/2608.14790)] [[🌐 Project Page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page)] [[📦 Model Weights](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)]
+[[📄 Paper](https://arxiv.org/abs/2608.14790)] [[🌐 Project Page](https://yunpeng1998.github.io/Qwen-Video-Edit-Page)] [[🤗 Model (Hugging Face)](https://huggingface.co/yunpeng1998/Qwen-Video-Edit)] [[🔮 Model (ModelScope)](https://modelscope.cn/models/yunpeng1998/Qwen-Video-Edit)]
 <!-- TODO: replace the Paper link with the arXiv URL once available -->
 
 ---
@@ -107,23 +107,25 @@ fails loudly if they don't).
 
 ### Model zoo
 
-All fine-tuned checkpoints live in
-[yunpeng1998/Qwen-Video-Edit](https://huggingface.co/yunpeng1998/Qwen-Video-Edit),
-organized by resolution. Directory names encode the [Ditto-1M](https://github.com/EzioBy/Ditto)
+All fine-tuned checkpoints live on
+[🤗 Hugging Face](https://huggingface.co/yunpeng1998/Qwen-Video-Edit); the two
+⭐ recommended ones plus 720P are mirrored on
+[🔮 ModelScope](https://modelscope.cn/models/yunpeng1998/Qwen-Video-Edit)
+(same paths). Directory names encode the [Ditto-1M](https://github.com/EzioBy/Ditto)
 training subset and the supported frame count: e.g. `global_local_81` = trained
 on the *global + local* editing subsets, supports **81**-frame chunks
 (`_45` → 45 frames). At inference, `--num_frames` and `--video_max_pixels`
 **must match the table** (all checkpoints use
 `--latent_mode wan_compressed --pe_mode grid`):
 
-| checkpoint | training data (Ditto-1M) | `--num_frames` | `--video_max_pixels` |
-|---|---|---|---|
-| **[`360P/step-30000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) ⭐ (Recommended)** | global + local | **45** | **245760** |
-| [`480P/global_45/step-6000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_45) | global | 45 | 399360 |
-| [`480P/local_45/step-11000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/local_45) | local | 45 | 399360 |
-| [`480P/sim2real_45/step-7000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/sim2real_45) | sim2real | 45 | 399360 |
-| **[`480P/global_local_81/step-6500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) ⭐ (Recommended)** | global + local | **81** | **399360** |
-| [`720P/global_local_45/step-3500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/720P/global_local_45) | global + local | 45 | 921600 |
+| checkpoint | training data (Ditto-1M) | `--num_frames` | `--video_max_pixels` | download |
+|---|---|---|---|---|
+| **[`360P/step-30000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) ⭐ (Recommended)** | global + local | **45** | **245760** | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/360P) / [MS](https://modelscope.cn/models/yunpeng1998/Qwen-Video-Edit/files) |
+| [`480P/global_45/step-6000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_45) | global | 45 | 399360 | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_45) |
+| [`480P/local_45/step-11000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/local_45) | local | 45 | 399360 | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/local_45) |
+| [`480P/sim2real_45/step-7000`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/sim2real_45) | sim2real | 45 | 399360 | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/sim2real_45) |
+| **[`480P/global_local_81/step-6500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) ⭐ (Recommended)** | global + local | **81** | **399360** | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/480P/global_local_81) / [MS](https://modelscope.cn/models/yunpeng1998/Qwen-Video-Edit/files) |
+| [`720P/global_local_45/step-3500`](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/720P/global_local_45) | global + local | 45 | 921600 | [HF](https://huggingface.co/yunpeng1998/Qwen-Video-Edit/tree/main/720P/global_local_45) / [MS](https://modelscope.cn/models/yunpeng1998/Qwen-Video-Edit/files) |
 
 > **Which one to use?** Start with the two ⭐ recommended checkpoints: they
 > are trained on the full *global + local* data and are the most converged.
@@ -148,6 +150,10 @@ hf download yunpeng1998/Qwen-Video-Edit 360P/step-30000.safetensors \
 # e.g. the 81-frame 480P checkpoint:
 hf download yunpeng1998/Qwen-Video-Edit 480P/global_local_81/step-6500.safetensors \
   --local-dir ./checkpoints
+
+# or from ModelScope (mirrored checkpoints only, same paths):
+modelscope download --model yunpeng1998/Qwen-Video-Edit \
+  360P/step-30000.safetensors --local_dir ./checkpoints
 ```
 
 **Base weights.** Easiest: do nothing — DiffSynth's loader auto-downloads
